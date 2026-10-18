@@ -113,3 +113,26 @@ def update_student(student_id: int, student_data: dict):
 
     finally:
         connection.close()
+
+def delete_student(student_id: int):
+    connection = get_connection()
+
+    try:
+        existing_student = connection.execute(
+            "SELECT * FROM students WHERE id = ?",
+            (student_id,),
+        ).fetchone()
+
+        if existing_student is None:
+            return False
+
+        connection.execute(
+            "DELETE FROM students WHERE id = ?",
+            (student_id,),
+        )
+
+        connection.commit()
+        return True
+
+    finally:
+        connection.close()

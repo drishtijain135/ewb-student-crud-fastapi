@@ -8,6 +8,7 @@ from app.crud import(
     get_all_students,
     get_student_by_id,
     update_student,
+    delete_student,
 
 )
 @asynccontextmanager
@@ -75,3 +76,17 @@ def edit_student(student_id: int, student: StudentCreate):
             status_code=400,
             detail=str(error)
         )
+
+
+@app.delete("/students/{student_id}")
+def remove_student(student_id: int):
+    deleted = delete_student(student_id)
+
+    if not deleted:
+        raise HTTPException(
+            status_code=404,
+            detail="Student not found"
+        )
+
+    return {"message": "Student deleted successfully"}
+
