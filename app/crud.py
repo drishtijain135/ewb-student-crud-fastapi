@@ -50,3 +50,18 @@ def get_all_students():
 
     finally:
         connection.close()
+
+
+def get_student_by_id(student_id: int):
+    connection = get_connection()
+
+    try:
+        row = connection.execute(
+            "SELECT * FROM students WHERE id = ?",
+            (student_id,),
+        ).fetchone()
+
+        return dict(row) if row else None
+
+    finally:
+        connection.close()
