@@ -3,8 +3,13 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 from app.database import init_db
 from app.schemas import StudentCreate
-from app.crud import create_student, get_all_students, get_student_by_id
+from app.crud import(
+    create_student,
+    get_all_students,
+    get_student_by_id,
+    update_student,
 
+)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     init_db()
@@ -46,3 +51,27 @@ def get_student(student_id: int):
             detail="Student not found"
         )
     return student
+
+
+@app.put("/students/{student_id}")
+def edit_student(student_id: int, student: StudentCreate):
+    try:
+        student_data = student.model_dump(mode="json")
+        updated_student = update_student(student_id, student_data)
+
+        if updated_student is None:
+            raise HTTPException(
+                status_code=404,
+                detail="Student not found"
+            )
+
+        return updated_student
+
+    except HTTPException:
+        raise
+
+    except Exception as error:
+        raise HTTPException(
+            status_code=400,
+            detail=str(error)
+        )
