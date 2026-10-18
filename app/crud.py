@@ -36,3 +36,17 @@ def create_student(student_data: dict):
 
     finally:
         connection.close()
+
+
+def get_all_students():
+    connection = get_connection()
+
+    try:
+        rows = connection.execute(
+            "SELECT * FROM students ORDER BY id"
+        ).fetchall()
+
+        return [dict(row) for row in rows]
+
+    finally:
+        connection.close()

@@ -3,8 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 from app.database import init_db
 from app.schemas import StudentCreate
-from app.crud import create_student
-
+from app.crud import create_student, get_all_students
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -33,3 +32,7 @@ def add_student(student: StudentCreate):
             status_code=400,
             detail=str(error)
         )
+
+@app.get("/students")
+def list_students():
+    return get_all_students()
