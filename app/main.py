@@ -2,7 +2,7 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 from app.database import init_db
-from app.schemas import StudentCreate
+from app.schemas import StudentCreate, AIQuestion
 from app.crud import(
     create_student,
     get_all_students,
@@ -11,6 +11,7 @@ from app.crud import(
     delete_student,
 
 )
+from app.ai_services import ask_ollama
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     init_db()
@@ -89,4 +90,29 @@ def remove_student(student_id: int):
         )
 
     return {"message": "Student deleted successfully"}
+
+@app.post("/ask")
+def ask_question(request: AIQuestion):
+    question = request.question.strip()
+
+    if not question:
+        raise HTTPException(
+            status_code=400,
+            detail="Question cannot be empty"
+        )
+
+    students = get_all_students()
+
+    try:
+        answer = ask_ollama(question, students)
+        return {
+            "question": question,
+            "answer": answer
+        }
+
+    except RuntimeError as error:
+        raise HTTPException(
+            status_code=503,
+            detail=str(error)
+        )
 
